@@ -6,8 +6,8 @@ import random
 import math
 import pyphi # needs nonbinary install
 pyphi.config.PARTITION_TYPE = 'ALL'
-pyphi.config.MEASURE = 'AID'
-pyphi.config.USE_SMALL_PHI_DIFFERENCE_FOR_CES_DISTANCE = True
+# pyphi.config.MEASURE = 'AID'
+# pyphi.config.USE_SMALL_PHI_DIFFERENCE_FOR_CES_DISTANCE = True
 pyphi.config.ASSUME_CUTS_CANNOT_CREATE_NEW_CONCEPTS = True
 pyphi.config.WELCOME_OFF = True
 
