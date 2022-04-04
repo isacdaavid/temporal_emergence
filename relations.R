@@ -1,5 +1,6 @@
 set.seed(1234)
 library(ggplot2)
+library(boot)
 theme_set(theme_gray(base_size = 22))
 
 FIG_PATH <- './figures/relations/relations.R'
@@ -152,10 +153,36 @@ dftemp$log_Amount_of_relations_norm  <- sapply(dftemp$Amount_of_relations_norm, 
 model  <- lm(log_Amount_of_relations_norm ~ Φ, dftemp[dftemp$Connectivity == 'Connected',])
 summary(model)
 
+bootstrap <- boot(dftemp[dftemp$Connectivity == 'Connected',],
+                  function(data, idx) {
+                      model <- lm(log_Amount_of_relations_norm ~ Φ, data[idx, ])
+                      model$coefficients[2]
+                  },
+                  R = 5000)
+svg(paste0(FIG_PATH, '/corr_Φ_amount_relations_boot_conn.svg'))
+ggplot(data.frame(x=bootstrap$t), aes(x=x)) +
+    geom_density(fill=1) +
+    geom_vline(xintercept=model$coefficients[2], linetype='solid', color='#f47b72', size=2) +
+    labs(title="Bootstrapped slope (5000 passes)", x='slope')
+dev.off()
+
 ## disconnected
 dftemp$log_Amount_of_relations_norm  <- sapply(dftemp$Amount_of_relations_norm, log)
 model  <- lm(log_Amount_of_relations_norm ~ Φ, dftemp[dftemp$Connectivity == 'Disconnected',])
 summary(model)
+
+bootstrap <- boot(dftemp[dftemp$Connectivity == 'Disconnected',],
+                  function(data, idx) {
+                      model <- lm(log_Amount_of_relations_norm ~ Φ, data[idx, ])
+                      model$coefficients[2]
+                  },
+                  R = 5000)
+svg(paste0(FIG_PATH, '/corr_Φ_amount_relations_boot_disconn.svg'))
+ggplot(data.frame(x=bootstrap$t), aes(x=x)) +
+    geom_density(fill=1) +
+    geom_vline(xintercept=model$coefficients[2], linetype='solid', color='#21bfc3', size=2) +
+    labs(title="Bootstrapped slope (5000 passes)", x='slope')
+dev.off()
 
 svg(paste0(FIG_PATH, '/corr_Φ_amount_relations.svg'), width=13, height=8)
 ggplot(dftemp, aes(x=Φ, y=log_Amount_of_relations_norm, color=Connectivity)) +
